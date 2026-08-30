@@ -1,7 +1,7 @@
 {
   "name": "node_teste",
   "version": "1.0.0",
-  "main": "teste.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha tests/**/*.test.mjs"
   },
