@@ -5,10 +5,10 @@ const connectDB = require('./config/config');
 const bookRoutes = require('./src/routes/bookRoutes');
 const errorHandler = require('./src/middlewares/errorHandler');
 
-connectDB();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+connectDB();
 
 app.use(bodyParser.json());
 app.use('/books', bookRoutes);
@@ -83,6 +83,10 @@ app.get('/', (req, res) => {
   res.send(htmlContent);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+module.exports = app;

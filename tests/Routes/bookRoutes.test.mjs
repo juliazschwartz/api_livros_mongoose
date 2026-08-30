@@ -1,24 +1,21 @@
 process.env.NODE_ENV = 'test';
 
-const mongoose = require('mongoose');
-const Book = require('../src/models/bookModel');
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const server = require('../index');
-const should = chai.should();
+import Book from '../../src/models/books.js';
+import * as chaiModule from 'chai';
+import chaiHttp from 'chai-http';
+import server from '../../index.js';
 
-chai.use(chaiHttp);
+const chai = chaiModule.use(chaiHttp);
+chai.should();
 
 describe('Books', () => {
-  beforeEach((done) => {
-    Book.remove({}, (err) => {
-      done();
-    });
+  beforeEach(async () => {
+    await Book.deleteMany({});
   });
 
   describe('/GET books', () => {
     it('it should GET all the books', (done) => {
-      chai.request(server)
+      chai.request.execute(server)
         .get('/books')
         .end((err, res) => {
           res.should.have.status(200);
@@ -35,7 +32,7 @@ describe('Books', () => {
         title: 'The Lord of the Rings',
         author: 'J.R.R. Tolkien'
       };
-      chai.request(server)
+      chai.request.execute(server)
         .post('/books')
         .send(book)
         .end((err, res) => {
@@ -49,52 +46,34 @@ describe('Books', () => {
   });
 
   describe('/GET/:id book', () => {
-    it('it should GET a book by the given id', (done) => {
-      const book = new Book({ title: '1984', author: 'George Orwell' });
-      book.save((err, book) => {
-        chai.request(server)
-          .get('/books/' + book.id)
-          .send(book)
-          .end((err, res) => {
-            res.should.have.status(200);
-            res.body.should.be.a('object');
-            res.body.should.have.property('title').eql('1984');
-            res.body.should.have.property('author').eql('George Orwell');
-            res.body.should.have.property('_id').eql(book.id);
-            done();
-          });
-      });
+    it('it should GET a book by the given id', async () => {
+      const book = await new Book({ title: '1984', author: 'George Orwell' }).save();
+      const res = await chai.request.execute(server).get('/books/' + book.id);
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('title').eql('1984');
+      res.body.should.have.property('author').eql('George Orwell');
+      res.body.should.have.property('_id').eql(book.id);
     });
   });
 
   describe('/PUT/:id book', () => {
-    it('it should UPDATE a book given the id', (done) => {
-      const book = new Book({ title: 'The Chronicles of Narnia', author: 'C.S. Lewis' });
-      book.save((err, book) => {
-        chai.request(server)
-          .put('/books/' + book.id)
-          .send({ title: 'The Chronicles of Narnia', author: 'C.S. Lewis Updated' })
-          .end((err, res) => {
-            res.should.have.status(200);
-            res.body.should.be.a('object');
-            res.body.should.have.property('author').eql('C.S. Lewis Updated');
-            done();
-          });
-      });
+    it('it should UPDATE a book given the id', async () => {
+      const book = await new Book({ title: 'The Chronicles of Narnia', author: 'C.S. Lewis' }).save();
+      const res = await chai.request.execute(server)
+        .put('/books/' + book.id)
+        .send({ title: 'The Chronicles of Narnia', author: 'C.S. Lewis Updated' });
+      res.should.have.status(200);
+      res.body.should.be.a('object');
+      res.body.should.have.property('author').eql('C.S. Lewis Updated');
     });
   });
 
   describe('/DELETE/:id book', () => {
-    it('it should DELETE a book given the id', (done) => {
-      const book = new Book({ title: 'Harry Potter', author: 'J.K. Rowling' });
-      book.save((err, book) => {
-        chai.request(server)
-          .delete('/books/' + book.id)
-          .end((err, res) => {
-            res.should.have.status(204);
-            done();
-          });
-      });
+    it('it should DELETE a book given the id', async () => {
+      const book = await new Book({ title: 'Harry Potter', author: 'J.K. Rowling' }).save();
+      const res = await chai.request.execute(server).delete('/books/' + book.id);
+      res.should.have.status(204);
     });
   });
 });
