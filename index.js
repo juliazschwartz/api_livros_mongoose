@@ -12,6 +12,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use('/books', bookRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
 app.use(errorHandler);
 
 app.get('/', (req, res) => {
