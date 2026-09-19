@@ -11,29 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Definir etapa
-        id: etapa
-        run: |
-          if [ "${{ github.event.workflow_run.name }}" = "CI" ]; then
-            echo "label=Testes" >> "$GITHUB_OUTPUT"
-            echo >> "$GITHUB_OUTPUT"
-          else
-            echo "label=Build & Deploy" >> "$GITHUB_OUTPUT"
-            echo  >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Enviar alerta no Discord (Sucesso)
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        uses: ilgear/discord-webhook-action@v1.0.0
+      - name: Notificar Discord
+        uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: success
-          content: "${{ steps.etapa.outputs.emoji }} **Etapa de ${{ steps.etapa.outputs.label }} concluída com sucesso!**\n**Repositório:** ${{ github.repository }}\n**Branch:** ${{ github.event.workflow_run.head_branch }}\n**Commit:** ${{ github.event.workflow_run.head_sha }}"
-
-      - name: Enviar alerta no Discord (Falha)
-        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-        uses: ilgear/discord-webhook-action@v1.0.0
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: failure
-          content: " **Falha na etapa de ${{ steps.etapa.outputs.label }}!**\n**Repositório:** ${{ github.repository }}\n**Branch:** ${{ github.event.workflow_run.head_branch }}\n**Commit:** ${{ github.event.workflow_run.head_sha }}"
+          status: ${{ github.event.workflow_run.conclusion }}
+          title: "${{ github.event.workflow_run.name == 'CI' && '🧪 Testes' || '🚀 Build & Deploy' }}"
+          description: |
+            **Repositório:** ${{ github.repository }}
+            **Branch:** ${{ github.event.workflow_run.head_branch }}
+            **Commit:** ${{ github.event.workflow_run.head_sha }}
