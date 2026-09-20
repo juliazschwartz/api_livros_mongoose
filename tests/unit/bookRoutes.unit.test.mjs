@@ -2,15 +2,11 @@ process.env.NODE_ENV = 'test';
 
 import express from 'express';
 import bodyParser from 'body-parser';
-import * as chaiModule from 'chai';
-import chaiHttp from 'chai-http';
 import sinon from 'sinon';
+import chai from '../support/chai.mjs';
 import Book from '../../src/models/books.js';
 import bookRoutes from '../../src/routes/bookRoutes.js';
 import errorHandler from '../../src/middlewares/errorHandler.js';
-
-const chai = chaiModule.use(chaiHttp);
-chai.should();
 
 const app = express();
 app.use(bodyParser.json());

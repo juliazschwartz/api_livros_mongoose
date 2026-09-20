@@ -1,12 +1,8 @@
 process.env.NODE_ENV = 'test';
 
 import Book from '../../src/models/books.js';
-import * as chaiModule from 'chai';
-import chaiHttp from 'chai-http';
+import chai from '../support/chai.mjs';
 import server from '../../index.js';
-
-const chai = chaiModule.use(chaiHttp);
-chai.should();
 
 describe('Books', () => {
   beforeEach(async () => {
